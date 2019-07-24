@@ -1,0 +1,11 @@
+﻿@model SimpleStudentElections.Logic.DisplayNomineeEntry
+
+@if (Model.IsFound)
+{
+    @Model.FullName
+}
+else
+{
+    @Model.ModelEntry.Username
+    <i>(cannot find user entry in timetable system - likely an error has happened)</i>
+}

@@ -1,0 +1,138 @@
+@model dynamic
+
+@{
+    ViewBag.Title = "Admin help";
+    ViewBag.HeaderMenuActive = "Help";
+}
+
+<section>
+    <h2>Election phases</h2>
+
+    Below are the 2 main election phases during which students can take action. There are also intermediary stages (see lifecycle section)
+
+    <h3>Nominations</h3>
+    <p>
+        All eligible students can freely nominate and un-nominate themselves. It is not possible to nominate other students
+    </p>
+
+    <h3>Voting</h3>
+    <p>
+        <ul>
+            <li>Nominations cannot be changed</li>
+            <li>All eligible students can vote for nominated people</li>
+            <li>Each student can vote only for one candidate per role</li>
+        </ul>
+    </p>
+</section>
+<hr/>
+
+<section>
+    <h2>Election states/lifecycle</h2>
+
+    <h3>Disabled</h3>
+    <p>
+        <ul>
+            <li>
+                The election has been created but it is not active and will not fire emails or be accessible by students
+            </li>
+            <li>
+                This is the initial state and cannot be returned to once nominations have started.
+            </li>
+            <li>
+                It isn't possible to advance from this state unless there is a day left until nominations start
+            </li>
+            <li>
+                Students aren't aware of this election
+            </li>
+        </ul>
+    </p>
+
+    <h3>PreNominations</h3>
+    <p>
+        <ul>
+            <li>The election is waiting to start</li>
+            <li>It is still possible to revert back to Disabled</li>
+            <li>Students can see a countdown until start of the nominations</li>
+        </ul>
+    </p>
+
+    <h3>Nominations</h3>
+    <p>
+        The nomination phase is currently underway. See "phases" section above
+    </p>
+
+    <h3>PreVoting</h3>
+    <p>
+        <ul>
+            <li>The nominations have been closed and we are currently waiting to start the voting phase</li>
+            <li>Students can see the election and list of nominees but cannot alter it</li>
+        </ul>
+    </p>
+
+    <h3>Voting</h3>
+    <p>
+        The voting phase is underway. See "phases" section above
+    </p>
+
+    <h3>Closed</h3>
+    <p>
+        <ul>
+            <li>The voting phase is complete and the system is currently waiting for student support to publish results</li>
+            <li>Students can see the election and list of nominees but not any voting results</li>
+        </ul>
+    </p>
+
+    <h3>ResultsPublished</h3>
+    <p>
+        <ul>
+            <li>The student support published the result and the election is now archived</li>
+            <li>Students can see the election, list of nominees and the results published by student support</li>
+        </ul>
+    </p>
+
+    <h3>Aborted</h3>
+    <p>
+        <ul>
+            <li>
+                The election was aborted for some reason. It is not visible to students
+            </li>
+            <li>
+                It remains for archival purposes and cannot be reenabled, restarted, etc.
+            </li>
+        </ul>
+    </p>
+</section>
+<hr/>
+
+<section>
+    <h2>Eligibility</h2>
+
+    <p>
+        <ul>
+            <li>Eligibility refers to which students can do what (you can think about it as per-election per-student permission system)</li>
+            <li>There are 2 types of eligibility: per-election and per-position/role</li>
+            <li>Per-election controls whether the election is visible to the student or student</li>
+            <li>Per-position/role controls whether a certain role is visible to the student and what (s)he can do - nominate/vote/both/neither</li>
+            <li>
+                Both types of eligibility are automatically generated when you activate the election but this behaviour
+                can be disabled via "Disable automatic eligibility" flag on individual election.
+                <span class="text-danger">Caution:</span> if you enable this flag, you will need to use the eligibility
+                debugger to allow students access to election
+            </li>
+        </ul>
+    </p>
+</section>
+<hr/>
+
+<section>
+    <h2>Timings, schedules, etc</h2>
+
+    <p>
+        The system makes heavy use of background task queues and as such an action that is confirmed in GUI (eg. activating an election)
+        might not instantly take effect - a delay of up to 1 minute is expected. Same thing applies to emails - they may
+        be sent with a slight delay. <br/>
+        <br/>
+        Please note that the system will try to self-recover in most cases but if something (eg. starting nominations
+        at scheduled time) is taking more than 5 minutes it probably means that there is an issue and the IT should be notified
+    </p>
+</section>

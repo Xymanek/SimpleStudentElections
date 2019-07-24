@@ -1,0 +1,27 @@
+@model dynamic
+
+<div class="modal fade" id="entries-deletion-confirmation" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm entries deletion</h5>
+                <button type="button" class="close disable-during-request" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="error-container"></div>
+                <p class="text-muted help-text"></p>
+                <ul class="entries-list"></ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary disable-during-request" data-dismiss="modal">
+                    Close
+                </button>
+                <button type="button" class="btn btn-danger confirm-button disable-during-request">
+                    Confirm deletion
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

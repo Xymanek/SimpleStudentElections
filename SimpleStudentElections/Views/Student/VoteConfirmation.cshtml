@@ -1,0 +1,50 @@
+﻿@model SimpleStudentElections.Logic.DisplayNomineeEntry
+
+@{
+    ViewBag.Title = "Voting confirmation";
+}
+
+<h2>@Model.ModelEntry.Position.Election.Name</h2>
+
+<div class="alert alert-primary">
+    <h4 class="alert-heading">You are about to vote</h4>
+    <p>
+        <ul>
+            <li>You are voting for <strong>@Model.ModelEntry.Position.HumanName</strong> position</li>
+            <li>You are voting for @Html.DisplayFor(m => m)</li>
+        </ul>
+    </p>
+    <hr/>
+    <ul>
+        <li>You can vote only for 1 person for each position</li>
+        <li>Your vote is final and <strong>cannot be changed</strong></li>
+    </ul>
+</div>
+
+@using (Html.BeginForm("DoVote", "Student"))
+{
+    @Html.AntiForgeryToken()
+    @Html.Hidden("nominationId", Model.ModelEntry.Id)
+
+    <div>
+        <a href="@Url.Action("Vote", new {id = Model.ModelEntry.Position.Election.Id})" class="btn btn-danger">
+            Cancel
+        </a>
+        <button type="button" class="btn btn-success" id="vote-confirm-button">Confirm</button>
+    </div>
+}
+
+@section scripts
+{
+    <script>
+        $("#vote-confirm-button").click(function (e) {
+            e.preventDefault();
+
+            var message = "Are you sure you want to vote for this candidate? This decision is final and cannot be undone";
+
+            if (confirm(message)) {
+                $(this).parents("form").submit();
+            }
+        });
+    </script>
+}

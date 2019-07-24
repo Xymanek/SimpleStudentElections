@@ -1,0 +1,55 @@
+﻿@using SimpleStudentElections.Logic
+@model SimpleStudentElections.Models.Election
+
+@{
+    ViewBag.Title = Model.Name + " | Remove from system";
+
+    bool canConfirm = ViewBag.CanConfirm;
+}
+
+<h2>@Model.Name</h2>
+
+<div class="alert alert-danger">
+    <div class="row">
+        <div class="col-md-1">
+            <i class="fas fa-exclamation-circle fa-4x"></i>
+        </div>
+        <div class="col-md-11">
+            <h4 class="alert-heading">You are about to permanently remove the election from system</h4>
+            <p>
+                This action will completely and utterly remove the election from system.
+                This means any information related to it will no longer be accessible/recoverable through the system
+            </p>
+            <hr />
+            <ul>
+                <li>
+                    This is a <strong>destructive and irreversible action</strong>. <strong>It cannot be undone</strong>!
+                </li>
+                <li>
+                    This action can be only preformed @ElectionLifecycleInfo.GetConfiguration().MinDaysForDeletion days after the election was aborted
+                </li>
+                <li>
+                    Note that this action cannot clear any remains/references to this election in server logs or received email messages
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div>
+        <a href="@Url.Action("Details", new {id = Model.Id})" class="btn btn-secondary">Cancel</a>
+        
+        @if (canConfirm)
+        {
+            <button type="submit" class="btn btn-danger">Confirm</button>
+        }
+        else
+        {
+            <button type="submit" class="btn btn-danger" disabled="disabled">Confirm</button>
+        }
+    </div>
+}

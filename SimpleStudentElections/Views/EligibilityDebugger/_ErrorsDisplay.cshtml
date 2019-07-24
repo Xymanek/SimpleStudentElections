@@ -1,0 +1,32 @@
+@model IList<string>
+
+@{
+    bool suggestReload = ViewBag.SuggestReload;
+}
+
+<div class="text-danger">
+    @if (Model.Count == 1)
+    {
+        <text>Error: </text>
+        @Model[0];
+        if (suggestReload)
+        {
+            <text>.</text>
+        }
+    }
+    else
+    {
+        <text>Following errors have occured: </text>
+        <ul>
+            @foreach (string error in Model)
+            {
+                <li>@error</li>
+            }
+        </ul>
+    }
+    
+    @if (suggestReload)
+    {
+        <text>Please reload the page and try again</text>
+    }
+</div>

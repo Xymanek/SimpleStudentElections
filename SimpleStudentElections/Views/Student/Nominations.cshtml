@@ -1,0 +1,76 @@
+﻿@using SimpleStudentElections.Logic
+@model SimpleStudentElections.Controllers.StudentController.NominationsData
+
+@{
+    ViewBag.Title = Model.Election.Name + " | Nominations";
+}
+
+<h3>@Html.DisplayFor(m => m.Election.Name)</h3>
+<div>
+    @Html.Raw(Model.Election.Description)
+</div>
+
+@if (Model.ElgibilePositions.Count > 0)
+{
+    <table class="table table-bordered">
+        @foreach (var positionData in Model.ElgibilePositions.OrderBy(p => p.Position.Id))
+        {
+            <tr>
+                <td style="width: 25%">
+                    @positionData.Position.HumanName
+                </td>
+
+                <td>
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            @{
+                                ISet<DisplayNomineeEntry> entries = Model.NomineeEntries[positionData.Position];
+                            }
+
+                            @if (entries.Count > 0)
+                            {
+                                <ul style="padding-left: 20px; margin-bottom: 0">
+                                    @foreach (DisplayNomineeEntry entry in Model.NomineeEntries[positionData.Position])
+                                    {
+                                        <li>@Html.DisplayFor(m => entry)</li>
+                                    }
+                                </ul>
+                            }
+                            else
+                            {
+                                <span class="text-muted">There is nobody nominated for this position</span>
+                            }
+                        </div>
+                        <div>
+                            @if (Model.AreNominationsOpen && positionData.CanNominate)
+                            {
+                                <form action="@Url.Action("UpdateNominationsStatus", new {positionId = positionData.Position.Id})"
+                                      method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    @Html.Hidden("newStatus", !positionData.IsNominated)
+
+                                    @if (positionData.IsNominated)
+                                    {
+                                        <button type="submit" class="btn btn-danger">
+                                            Un-nominate
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button type="submit" class="btn btn-success">
+                                            Nominate
+                                        </button>
+                                    }
+                                </form>
+                            }
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        }
+    </table>
+}
+else
+{
+    <p class="text-muted">There are no positions that are visible to you</p>
+}

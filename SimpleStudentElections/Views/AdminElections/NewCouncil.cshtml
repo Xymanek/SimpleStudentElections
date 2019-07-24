@@ -1,0 +1,26 @@
+﻿@using SimpleStudentElections.Helpers
+@model SimpleStudentElections.Models.Forms.CouncilElectionForm
+
+@{
+    ViewBag.Title = "New student council election";
+    ViewBag.HeaderMenuActive = "New";
+
+    Html.IncludeCkeditor();
+}
+
+<h2>New student council election</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.EditorForModel()
+
+    <div class="form-group row">
+        <div class="offset-md-2 col-md-10">
+            <button type="submit" class="btn btn-primary">Create</button>
+            <span class="text-muted align-middle">
+                Note that the election will be disabled by default and you will be able to edit it before launching
+            </span>
+        </div>
+    </div>
+}

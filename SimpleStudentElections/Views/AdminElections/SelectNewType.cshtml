@@ -1,0 +1,40 @@
+﻿@model dynamic
+
+@{
+    ViewBag.Title = "Create new election";
+    ViewBag.HeaderMenuActive = "New";
+}
+
+<h2>Please select election type</h2>
+
+<div class="row">
+    <div class="col">
+        <div class="jumbotron">
+            <h1>Student council</h1>
+            <p class="lead">Available to all active students. You can name a set of roles to vote for. Everybody can vote for all roles</p>
+            <p>
+                @using (Html.BeginForm("NewCouncil", "AdminElections", FormMethod.Get, new {@class = "form-inline justify-content-end"}))
+                {
+                    <div class="input-group mu-2 mr-sm-2">
+                        <div class="input-group-prepend">
+                            <div class="input-group-text">Number of roles</div>
+                        </div>
+                        <input type="number" class="form-control" value="6" style="width: 80px" name="numRoles">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-lg">Create</button>
+                }
+            </p>
+        </div>
+    </div>
+
+    <div class="col">
+        <div class="jumbotron">
+            <h1>Course representatives</h1>
+            <p class="lead">Available to all active students. The election will be automatically segregated by course/year tuples</p>
+            <p style="text-align: right">
+                <a href="@Url.Action("NewCourseRep")" class="btn btn-primary btn-lg">Create</a>
+            </p>
+        </div>
+    </div>
+</div>

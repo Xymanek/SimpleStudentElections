@@ -1,0 +1,355 @@
+﻿@using SimpleStudentElections.Controllers
+@using SimpleStudentElections.Logic
+@using SimpleStudentElections.Models
+@model SimpleStudentElections.Controllers.AdminElectionsController.DetailsData
+
+@functions
+{
+    private class EmailDisplayData
+    {
+        public readonly string Title;
+        public readonly EmailDefinition Definition;
+
+        public EmailDisplayData(string title, EmailDefinition definition)
+        {
+            Title = title;
+            Definition = definition;
+        }
+    }
+}
+
+@{
+    ViewBag.Title = Model.Common.Name + " | Details";
+
+    // ReSharper disable once UseObjectOrCollectionInitializer
+    List<EmailDisplayData> emails = new List<EmailDisplayData>();
+
+    emails.Add(new EmailDisplayData("Nominations started", Model.Common.NominationsStartedEmail));
+
+    if (Model.Common.Type == ElectionType.StudentCouncil)
+    {
+        emails.Add(new EmailDisplayData(
+            "Nominations almost over",
+            Model.CouncilElectionData.NominationsAlmostOverEmail
+        ));
+    }
+
+    emails.Add(new EmailDisplayData("Post nominations", Model.Common.PostNominationsEmail));
+
+    if (Model.Common.Type == ElectionType.StudentCouncil)
+    {
+        emails.Add(new EmailDisplayData(
+            "Voting started",
+            Model.CouncilElectionData.VotingStartedEmail
+        ));
+        
+        emails.Add(new EmailDisplayData(
+            "Voting almost over",
+            Model.CouncilElectionData.VotingAlmostOverEmail
+        ));
+    }
+
+    emails.Add(new EmailDisplayData("Post voting", Model.Common.PostVotingEmail));
+    emails.Add(new EmailDisplayData("Results published", Model.Common.ResultsPublishedEmail));
+}
+
+<div class="d-flex justify-content-between">
+    <h2>@Model.Common.Name</h2>
+
+    <div>
+        @foreach (AdminElectionsController.DetailsData.Action action in Model.Actions)
+        {
+            TagBuilder tag = new TagBuilder(action.Enabled ? "a" : "button");
+
+            tag.AddCssClass("btn");
+            tag.AddCssClass("btn-" + action.CssType);
+            tag.InnerHtml = action.Title;
+            tag.Attributes["type"] = "button";
+
+            if (action.Enabled)
+            {
+                tag.Attributes["href"] = action.Url;
+            }
+            else
+            {
+                tag.Attributes["disabled"] = "disabled";
+            }
+
+            if (action.Tooltip != null)
+            {
+                tag.Attributes["data-toggle"] = "tooltip";
+                tag.Attributes["title"] = action.Tooltip;
+            }
+
+            @Html.Raw(tag)
+
+            // This is required for space between buttons ¯\_(ツ)_/¯
+            <text></text>
+        }
+    </div>
+</div>
+
+<div class="row" style="margin-top: 10px">
+    <div class="col">
+        @{
+            Html.RenderPartial("_ElectionGeneralInfo", Model.Common);
+        }
+    </div>
+
+    <div class="col">
+        @Html.DisplayFor(m => m.Common.Nominations, new
+        {
+            PhaseTitle = "Nominations phase",
+            ShowAlmostOver = ElectionLifecycleInfo.AreAlmostOverEmailsEnabled(Model.Common)
+        })
+    </div>
+
+    <div class="col">
+        @Html.DisplayFor(m => m.Common.Voting, new
+        {
+            PhaseTitle = "Voting phase",
+            ShowAlmostOver = ElectionLifecycleInfo.AreAlmostOverEmailsEnabled(Model.Common)
+        })
+    </div>
+</div>
+
+<div class="accordion" id="desc-accordion">
+    <div class="card">
+        <div class="card-header py-0">
+            <h5 class="mb-0">
+                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#desc-collapse" aria-expanded="true" aria-controls="desc-collapse">
+                    @Html.DisplayNameFor(m => m.Common.Description)
+                </button>
+            </h5>
+        </div>
+
+        <div id="desc-collapse" class="collapse show" data-parent="#desc-accordion">
+            <div class="card-body">
+                @Html.Raw(Model.Common.Description)
+            </div>
+        </div>
+    </div>
+    
+    @if (ElectionLifecycleInfo.ShowResultsAdmin(Model.Common))
+    {
+        <div class="card">
+            <div class="card-header py-0">
+                <h5 class="mb-0">
+                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#results-collapse" aria-expanded="true" aria-controls="results-collapse">
+                        Results
+                    </button>
+                </h5>
+            </div>
+
+            <div id="results-collapse" class="collapse" data-parent="#desc-accordion">
+                <div class="card-body">
+                    @Html.Raw(Model.Common.ResultsText)
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="card">
+        <div class="card-header py-0">
+            <h5 class="mb-0">
+                <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#positions-collapse" aria-expanded="false" aria-controls="positions-collapse">
+                    @Html.DisplayNameFor(m => m.Common.Positions)
+                </button>
+            </h5>
+        </div>
+        <div id="positions-collapse" class="collapse" data-parent="#desc-accordion">
+            <div class="card-body d-flex justify-content-between">
+                @if (Model.Common.PositionGenerationInProcess)
+                {
+                    <p class="text-muted">Position generation in process</p>
+                }
+                else
+                {
+                    <ul class="mb-0">
+                        @foreach (VotablePosition position in Model.Common.PositionsSorted)
+                        {
+                            <li>
+                                @position.HumanName
+                            </li>
+                        }
+                    </ul>
+
+                    if (ElectionLifecycleInfo.CanForcePositionGeneration(Model.Common))
+                    {
+                        <div>
+                            <form method="post" action="@Url.Action("RegeneratePositions")" class="d-inline">
+                                <button type="submit" class="btn btn-primary">Regenerate positions</button>
+                            </form>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header py-0">
+            <h5 class="mb-0">
+                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#nominations-collapse" aria-expanded="true" aria-controls="nominations-collapse">
+                    Nominations
+                </button>
+            </h5>
+        </div>
+
+        <div id="nominations-collapse" class="collapse" data-parent="#desc-accordion">
+            <div class="card-body">
+                <p>
+                    <strong>Status</strong>:
+                    @if (Model.Common.State == ElectionState.Nominations)
+                    {
+                        <text>nominations are currently underway</text>
+                    }
+                    else if (ElectionLifecycleInfo.IsInactive(Model.Common))
+                    {
+                        <text>this election is inactive</text>
+                    }
+                    else if (ElectionLifecycleInfo.IsBefore(Model.Common, ElectionState.Nominations))
+                    {
+                        <text>
+                            this election is in <strong>@Html.DisplayFor(m => m.Common.State)</strong> state - nominations haven't started yet
+                        </text>
+                    }
+                    else if (ElectionLifecycleInfo.IsAfter(Model.Common, ElectionState.Nominations))
+                    {
+                        <text>
+                            this election is in <strong>@Html.DisplayFor(m => m.Common.State)</strong> state - nominations have finished
+                        </text>
+                    }
+                </p>
+
+                <div>
+                    <strong>Nominees</strong>:
+
+                    <table class="table table-bordered">
+                        @foreach (var position in Model.Common.Positions.OrderBy(p => p.Id))
+                        {
+                            <tr>
+                                <td style="width: 25%">@position.HumanName</td>
+                                <td>
+                                    <ul style="padding-left: 20px; margin-bottom: 0">
+                                        @foreach (DisplayNomineeEntry entry in Model.NomineeEntries[position])
+                                        {
+                                            <li>@Html.DisplayFor(m => entry)</li>
+                                        }
+                                    </ul>
+                                </td>
+                            </tr>
+                        }
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header py-0">
+            <h5 class="mb-0">
+                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#votes-collapse" aria-expanded="true" aria-controls="votes-collapse">
+                    Votes
+                </button>
+            </h5>
+        </div>
+
+        <div id="votes-collapse" class="collapse" data-parent="#desc-accordion">
+            <div class="card-body">
+                Note that viewing votes will be recorded. You can view the records under the "Audit" tab 
+                <form method="post" action="@Url.Action("ViewVotes")">
+                    @Html.AntiForgeryToken()
+                    @Html.Hidden("id", Model.Common.Id)
+                    <button class="btn btn-success">Proceed</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card">
+            <div class="card-header py-0">
+                <h5 class="mb-0">
+                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#eligibility-collapse" aria-expanded="true" aria-controls="eligibility-collapse">
+                        Eligibility
+                    </button>
+                </h5>
+            </div>
+    
+            <div id="eligibility-collapse" class="collapse" data-parent="#desc-accordion">
+                <div class="card-body">
+                    <div>
+                        <a href="@Url.Action("Election", "EligibilityDebugger", new {id = Model.Common.Id})" class="btn btn-success">
+                            Election eligibility
+                        </a>
+                        <a href="@Url.Action("Positions", "EligibilityDebugger", new {electionId = Model.Common.Id})" class="btn btn-success">
+                            Positions eligibility
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    <div class="card">
+        <div class="card-header py-0">
+            <h5 class="mb-0">
+                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#audit-collapse" aria-expanded="true" aria-controls="audit-collapse">
+                    Audit
+                </button>
+            </h5>
+        </div>
+
+        <div id="audit-collapse" class="collapse" data-parent="#desc-accordion">
+            <div class="card-body">
+                <div>
+                    <a href="@Url.Action("EventLog",  new {id = Model.Common.Id})" class="btn btn-success">
+                        Event log
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h4 class="mt-4">Emails</h4>
+
+<div class="accordion" id="emails-accordion">
+    @for (int i = 0; i < emails.Count; i++)
+    {
+        <div class="card">
+            <div class="card-header py-0">
+                <h5 class="mb-0">
+                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#emails-@i" aria-expanded="true" aria-controls="emails-@i">
+                        @emails[i].Title
+                    </button>
+                </h5>
+            </div>
+
+            <div id="emails-@i" class="collapse" data-parent="#emails-accordion">
+                <div class="card-body">
+                    @if (!emails[i].Definition.IsEnabled)
+                    {
+                        <span class="text-muted">This email is disabled</span>
+                    }
+                    else
+                    {
+                        <p>
+                            <strong>Subject:</strong> @emails[i].Definition.Subject
+                        </p>
+                        
+                        @Html.Raw(emails[i].Definition.Body)
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section scripts
+{
+    <script>
+        $(function() {
+            $('[data-toggle="tooltip"]').tooltip();
+        })
+    </script>
+}

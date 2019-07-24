@@ -1,0 +1,38 @@
+@using SimpleStudentElections.Controllers
+@model SimpleStudentElections.Controllers.AdminElectionsController.EventLogData
+
+@{
+    ViewBag.Title = Model.Election.Name + " | Event log";
+}
+
+<h2>@Model.Election.Name</h2>
+
+<div class="alert alert-success d-print-none" role="alert">
+    Note: this page is print-ready
+</div>
+
+<table class="table">
+    <tr>
+        <th>Instigator</th>
+        <th>Event</th>
+        <th>Occurred at</th>
+    </tr>
+
+    @foreach (AdminElectionsController.EventLogEntry entry in Model.Entries)
+    {
+        <tr>
+            <td>
+                @if (entry.User == null)
+                {
+                    <span class="text-muted">Automatic</span>
+                }
+                else
+                {
+                    @entry.User
+                }
+            </td>
+            <td>@Html.Raw(entry.Text)</td>
+            <td>@entry.OccuredAt</td>
+        </tr>
+    }
+</table>

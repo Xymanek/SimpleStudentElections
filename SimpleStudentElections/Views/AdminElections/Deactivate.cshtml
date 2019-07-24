@@ -1,0 +1,30 @@
+﻿@model SimpleStudentElections.Models.Election
+
+@{
+    ViewBag.Title = Model.Name + " | Deativation";
+}
+
+<h2>@Model.Name</h2>
+
+<div class="alert alert-warning">
+    <h4 class="alert-heading">You are about to deactivate this election</h4>
+    <p>
+        This action will put the election into <strong>Disabled</strong> state.
+        This means that nominations will not start and no emails will be sent until the election is activated again
+    </p>
+    <hr />
+    <ul>
+        <li>You can only preform this action at any time until nominations start</li>
+        <li>You will be able to activate the election again if at least a day remains until nominations start</li>
+    </ul>
+</div>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    
+    <div>
+        <a href="@Url.Action("Details", new { id = Model.Id })" class="btn btn-danger">Cancel</a>
+        <button type="submit" class="btn btn-primary">Confirm</button>
+    </div>
+}

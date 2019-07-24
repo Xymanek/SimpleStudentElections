@@ -1,0 +1,32 @@
+@model SimpleStudentElections.Models.Election
+
+<table class="table table-bordered table-sm">
+    <thead>
+    <tr>
+        <th colspan="2">General info</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <th scope="row">@Html.DisplayNameFor(m => m.Type)</th>
+        <td>@Html.DisplayFor(m => m.Type)</td>
+    </tr>
+    <tr>
+        <th scope="row">@Html.DisplayNameFor(m => m.State)</th>
+        <td>@Html.DisplayFor(m => m.State)</td>
+    </tr>
+    <tr>
+        <th scope="row">Eligibility</th>
+        <td>
+            @if (Model.DisableAutomaticEligibility)
+            {
+                <text>Manual</text>
+            }
+            else
+            {
+                <text>Automatic</text>
+            }
+        </td>
+    </tr>
+    </tbody>
+</table>

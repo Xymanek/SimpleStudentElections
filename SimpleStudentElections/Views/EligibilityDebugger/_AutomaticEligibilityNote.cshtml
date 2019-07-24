@@ -1,0 +1,24 @@
+@model SimpleStudentElections.Models.Election
+
+@if (Model.DisableAutomaticEligibility)
+{
+    <div class="alert alert-success" role="alert">
+        This election is set to <strong>Disable automatic eligibility</strong>.
+        This means that the system will not alter eligibility tables on its own
+    </div>
+}
+else
+{
+    <div class="alert alert-warning" role="alert">
+        <strong>Note:</strong> this election <strong>is not set to disable automatic eligibility</strong>.
+        This means that the system can alter eligibility tables on its own
+    </div>
+}
+
+@if (Model.PositionGenerationInProcess)
+{
+    <div class="alert alert-danger" role="alert">
+        <strong>Warning:</strong> the position list for this election is currently being generated.
+        It's highly advised to not preform any changes until this is done
+    </div>
+}

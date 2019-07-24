@@ -1,0 +1,216 @@
+@using SimpleStudentElections.Helpers
+@model SimpleStudentElections.Models.Election
+
+@{
+    ViewBag.Title = Model.Name + "| Positions eligibility";
+
+    Html.IncludeDataTables();
+}
+
+<div class="d-flex justify-content-between">
+    <h2>@Model.Name | Positions eligibility</h2>
+    <div>
+        <a href="@Url.Action("Election", new {id = Model.Id})" class="btn btn-primary">
+            Election eligibility
+        </a>
+        <a href="@Url.Action("Details", "AdminElections", new {id = Model.Id})" class="btn btn-secondary">
+            Back to election details
+        </a>
+    </div>
+</div>
+
+@{
+    Html.RenderPartial("_AutomaticEligibilityNote", Model);
+}
+
+<table id="positions-eligibility-table" class="table table-striped table-bordered"></table>
+
+@section BeforeScripts
+{
+    @{
+        Html.RenderPartial("_DeletionModal");
+        Html.RenderPartial("_PositionEditModal", Model);
+        Html.RenderPartial("_NewPositionModal", Model);
+    }
+}
+
+@section scripts
+{
+    <script src="~/Scripts/admin/modal_helpers.js"></script>
+    <script src="~/Scripts/admin/entries_deletion.js"></script>
+    <script src="~/Scripts/admin/position_entries.js"></script>
+
+    <script>
+        $(function() {
+            const $table = $('#positions-eligibility-table');
+
+            const deletionModal = new DeletionModal(
+                $('#entries-deletion-confirmation'),
+                'You are about to delete the following position entries. ' +
+                'Doing so will make these positions invisible to the mentioned students',
+                '@Url.Action("RemovePositionEntries")',
+                function() {
+                    // On success just remove the selected rows
+                    $table.DataTable()
+                        .rows({ selected: true })
+                        .remove()
+                        .draw();
+                }
+            );
+
+            const editModal = new PositionEntryEditModal($('#position-entry-edit'), '@Url.Action("EditPositionEntry")');
+            const creationModal = new NewPositionEntryModal($('#new-position-entry'), @Model.Id, $table, '@Url.Action("NewPositionEntry")');
+
+            const boolRenderer = function(data, type, row) {
+                return data ? 'Yes' : 'No';
+            };
+
+            $table.DataTable({
+                // Buttons
+                buttons: [
+                    {
+                        text: 'Create new entry',
+                        init: function(dt, node, config) {
+                            // Change button colour
+                            node.removeClass('btn-secondary').addClass('btn-success');
+                        },
+                        action: function(e, dt, node, config) {
+                            creationModal.open();
+                        }
+                    },
+                    {
+                        text: 'Show position IDs',
+                        action: function(e, dt, node, config) {
+                            const column = dt.column(1);
+
+                            column.visible(!column.visible());
+                            this.text(column.visible() ? 'Hide position IDs' : 'Show position IDs');
+                        }
+                    },
+                    {
+                        extend: 'excel',
+                        text: 'Export to Excel',
+                        exportOptions: {
+                            columns: function(idx, data, node) {
+                                return !([0, 7].includes(idx));
+                            }
+                        }
+                    },
+                    {
+                        extend: 'selected',
+                        text: 'Delete selected',
+                        titleAttr: 'Delete all selected entries',
+                        init: function(dt, node, config) {
+                            // Call the parent init
+                            $.fn.dataTable.ext.buttons.selected.init.call(this, dt, node, config);
+
+                            // Change button colour
+                            node.removeClass('btn-secondary').addClass('btn-danger');
+                        },
+                        action: function(e, dt, node, config) {
+                            const entries = dt.rows({ selected: true })
+                                .data()
+                                .toArray()
+                                .map(row => new PositionEntry(
+                                    row.PositionId,
+                                    row.PositionName,
+                                    row.UserFullName,
+                                    row.UserId
+                                ));
+
+                            deletionModal.askForConfirmation(entries);
+                        }
+                    }
+                ],
+
+                // Select
+                select: {
+                    style: 'multi+shift',
+                    selector: 'td:first-child'
+                },
+
+                // Layout
+                dom: "<'row'<'col-sm-12 col-md-6'B><'col-sm-12 col-md-6'f>>" +
+                    "<'row'<'col-sm-12'tr>>" +
+                    "<'d-flex justify-content-between under-datatable'<i><l><p>>",
+
+                // Data
+                ajax: "@Url.Action("PositionsData")",
+                order: [[1, 'asc'], [4, 'asc']],
+                columns: [
+                    {
+                        orderable: false,
+                        className: 'select-checkbox',
+                        data: null,
+                        "defaultContent": ""
+                    },
+                    {
+                        title: "Position ID",
+                        data: "PositionId",
+                        visible: false
+                    },
+                    {
+                        title: "Position",
+                        data: "PositionName"
+                    },
+                    {
+                        title: "Student ID",
+                        data: "UserId"
+                    },
+                    {
+                        title: "Full name",
+                        data: "UserFullName",
+                        render: function(data, type, row) {
+                            if (data == null) {
+                                return '<span class="text-muted">User not found in timetable database</span>';
+                            }
+
+                            return data;
+                        }
+                    },
+                    {
+                        title: "Can nominate?",
+                        data: "CanNominate",
+                        render: boolRenderer
+                    },
+                    {
+                        title: "Can vote?",
+                        data: "CanVote",
+                        render: boolRenderer
+                    },
+                    {
+                        orderable: false,
+                        data: null,
+                        defaultContent: "",
+                        className: 'table-button-cell',
+                        width: '55px',
+                        render: function(data, type, row, meta) {
+                            return `<button class="btn btn-primary edit-button">Edit</button>`;
+                        },
+                        createdCell: function(td, cellData, rowData, rowIndex, colIndex) {
+                            const table = $table.DataTable();
+                            const $cell = $(td);
+                            const $row = $cell.parent();
+
+                            $cell.find('.edit-button').click(function() {
+                                editModal.editEntry(table.row($row));
+                            });
+                        }
+                    }
+                ]
+            });
+
+            const $underDatatable = $('.under-datatable');
+
+            $underDatatable.find('.dataTables_info').addClass('pt-2');
+            $underDatatable.find('.dataTables_length').addClass('pt-2');
+        });
+    </script>
+
+    <style>
+        .table-button-cell {
+            padding: 5px !important;
+            text-align: center
+        }
+    </style>
+}

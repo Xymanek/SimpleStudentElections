@@ -1,0 +1,32 @@
+﻿- IIS Manager
+- Select server
+- Configuration Editor
+
+1) Section "system.applicationHost/serviceAutoStartProviders"
+- Open up "(Collection)"
+- Click add
+- Set name: "EVotePreload", type: "SimpleStudentElections.ApplicationPreload, SimpleStudentElections"
+
+2) Section "system.applicationHost/sites"
+- Open the "(Collection)"
+- Find the EVote site in the list, select
+- Set "serverAutoStart" to true
+- Open the "(Collection)"
+- Select the first line (there should be one only anyway)
+- Set "preloadEnabled" and "serviceAutoStartEnabled" to true
+- Set "serviceAutoStartProvider" to "EVotePreload"
+
+Save everything
+
+### Testing ###
+
+- Close the browser
+- IIS Manager -> Application Pools
+- Right click on the EVote pool, recycle
+- Wait 5 minutes
+- Open /EVote/hangfire/servers
+- Started should be "5 minutes ago"
+
+### Timetable ###
+
+- Redirect back uses http (not https)

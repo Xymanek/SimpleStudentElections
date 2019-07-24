@@ -1,0 +1,105 @@
+﻿@using SimpleStudentElections.Logic
+@using SimpleStudentElections.Models
+@model SimpleStudentElections.Controllers.StudentController.IndexData
+
+@{
+    ViewBag.Title = "Elections list";
+    ViewBag.HeaderMenuActive = "ElectionsList";
+}
+
+@if (Model.UpcomingElections.Length > 0)
+{
+    <h3>Upcoming elections</h3>
+
+    foreach (Election election in Model.UpcomingElections)
+    {
+        <div style="margin-bottom: 10px">
+            <div>
+                <h4 style="display: inline">@Html.DisplayFor(m => election.Name)</h4>
+                <span class="text-muted">
+                    Nominations open on @Html.DisplayFor(m => election.Nominations.BeginsAt)
+                </span>
+            </div>
+
+            <div>
+                @Html.Raw(election.Description)
+            </div>
+        </div>
+    }
+
+    <hr/>
+}
+
+<h3>Current elections</h3>
+
+@if (Model.CurrentElections.Length == 0)
+{
+    <p class="text-muted">There are currently no elections running</p>
+}
+else
+{
+    foreach (Election election in Model.CurrentElections)
+    {
+        <div>
+            <div class="d-flex justify-content-between">
+                <h4>@Html.DisplayFor(m => election.Name)</h4>
+                <div>
+                    @if (ElectionLifecycleInfo.CanVote(election))
+                    {
+                        <a href="@Url.Action("Vote", new {id = election.Id})" class="btn btn-success">
+                            Vote
+                        </a>
+                    }
+
+                    <a href="@Url.Action("Nominations", new {id = election.Id})" class="btn btn-primary">
+                        Nominations
+                    </a>
+                </div>
+            </div>
+
+            <div>
+                @Html.Raw(election.Description)
+            </div>
+        </div>
+    }
+}
+
+
+@if (Model.PastElections.Length > 0)
+{
+    <hr/>
+    <h3>Previous elections</h3>
+
+    foreach (Election election in Model.PastElections)
+    {
+        <div>
+            <h4>@Html.DisplayFor(m => election.Name)</h4>
+
+            <p>
+                @Html.Raw(election.Description)
+            </p>
+
+            <table class="table table-bordered table-sm">
+                @if (ElectionLifecycleInfo.ShowResultsStudent(election))
+                {
+                    <thead>
+                    <tr>
+                        <th>Results</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>@Html.Raw(election.ResultsText)</td>
+                    </tr>
+                    </tbody>
+                }
+                else
+                {
+                    <tr>
+                        <td>Results are not published yet</td>
+                    </tr>
+                }
+            </table>
+        </div>
+    }
+}

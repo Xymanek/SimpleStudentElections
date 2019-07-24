@@ -1,0 +1,27 @@
+﻿@using SimpleStudentElections.Helpers
+@model int
+
+@{
+    BootstrapHorizontalForm horizontalForm = ViewData[FormConfig.ViewDataKey] as BootstrapHorizontalForm;
+}
+
+@if (horizontalForm == null)
+{
+    @Html.TextBoxFor(m => m, Html.GetDictionaryFromViewBagValue((object) ViewBag.htmlAttributes))
+}
+else
+{
+    Layout = "Layouts/BootstrapHorizontal.cshtml";
+    
+    HtmlAttributeDictionary inputAttrs = new HtmlAttributeDictionary(Html.GetDictionaryFromViewBagValue(
+        (object) ViewBag.inputAttributes,
+        () => new Dictionary<string, object>() // Cannot return null so we replace it with empty dictionary
+    ));
+
+    inputAttrs["type"] = "number";
+    inputAttrs.AddClass("form-control");
+    inputAttrs.AddClass(Html.StringIfFieldError(model => model));    
+    Html.AddDisabledConditionally(inputAttrs);
+
+    @Html.TextBoxFor(model => model, inputAttrs)
+}

@@ -1,0 +1,104 @@
+﻿@using SimpleStudentElections.Auth
+@using SimpleStudentElections.Helpers
+@using StackExchange.Profiling
+
+@{
+    string menuActive = ViewBag.HeaderMenuActive;
+}
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>@ViewData["Title"]</title>
+
+    <link rel="stylesheet" href="~/Content/bootstrap.css"/>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
+    <link rel="stylesheet" href="~/Content/admin.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.0.1/css/tempusdominus-bootstrap-4.min.css"/>
+
+    @RenderSection("AdditionalStyles", required: false)
+
+    @if (Html.ShouldIncludeDataTables())
+    {
+        <link rel="stylesheet" href="~/Scripts/datatables/datatables.min.css"/>
+    }
+
+    @* This is here so we can use $(document).ready() *@
+    <script src="~/Scripts/jquery-3.3.1.js"></script>
+
+</head>
+<body>
+
+<header>
+    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+        <div class="container">
+            <span class="navbar-brand">Elections Admin</span>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item @(menuActive == "Current" ? "active" : "")">
+                        <a class="nav-link" href="@Url.Action("Current", "AdminElections")">Current elections</a>
+                    </li>
+                    <li class="nav-item @(menuActive == "New" ? "active" : "")">
+                        <a class="nav-link" href="@Url.Action("SelectNewType", "AdminElections")">New election</a>
+                    </li>
+                    <li class="nav-item @(menuActive == "Archived" ? "active" : "")">
+                        <a class="nav-link" href="@Url.Action("Archived", "AdminElections")">Archived elections</a>
+                    </li>
+                    <li class="nav-item @(menuActive == "Help" ? "active" : "")">
+                        <a class="nav-link" href="@Url.Action("Help", "AdminElections")">Help</a>
+                    </li>
+                </ul>
+
+                @* Auth things *@
+                <div>
+                    <span style="color: white; margin-right: 5px">@User.Identity.Name</span>
+
+                    @if (AppAuthConfiguration.Get().DebugMode)
+                    {
+                        <a class="btn btn-danger" href="@Url.Action("Logout", "Auth")">Logout</a>
+                    }
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<div class="container" id="outer-wrap">
+    @RenderBody()
+</div>
+
+<footer id="bottom-sticky-footer" class="d-print-none">
+    <div class="container">
+        <span class="text-muted">&copy; 2019 - SimpleStudentElections</span>
+    </div>
+</footer>
+
+@RenderSection("BeforeScripts", false)
+
+<script src="~/Scripts/umd/popper.js"></script>
+<script src="~/Scripts/bootstrap.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.0.1/js/tempusdominus-bootstrap-4.min.js"></script>
+
+@if (Html.ShouldIncludeCkeditor())
+{
+    <script src="~/Scripts/ckeditor/ckeditor.js"></script>
+}
+
+@if (Html.ShouldIncludeDataTables())
+{
+    <script src="~/Scripts/datatables/datatables.min.js"></script>
+}
+
+@RenderSection("scripts", required: false)
+@MiniProfiler.Current.RenderIncludes()
+
+</body>
+</html>

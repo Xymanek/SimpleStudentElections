@@ -1,0 +1,50 @@
+@using SimpleStudentElections.Helpers
+@using SimpleStudentElections.Models.Forms
+@model SimpleStudentElections.Models.Forms.EmailForm
+
+@{
+    BootstrapHorizontalForm horizontalForm = Html.GetFormConfig<BootstrapHorizontalForm>();
+    ModelFieldsAccessibility fieldsInfo =
+        Html.GetFieldsInfo(() => EmailForm.DefaultFieldsInfo(ModelFieldsAccessibility.Kind.Editable));
+
+    if (horizontalForm == null)
+    {
+        throw new Exception("EmailForm editor template doesn't support non-bootstrap form config");
+    }
+
+    Layout = "Layouts/BootstrapHorizontal.cshtml";
+    string help = ViewBag.help;
+
+    // Do not show layout help
+    ViewBag.help = null;
+    
+    // The whole-email-related validation is displayed on top of fields 
+    ViewBag.ShowValidation = false;
+}
+
+@section UnderLabel
+{
+    @if (!string.IsNullOrWhiteSpace(help))
+    {
+        <small class="text-muted">
+            @help
+        </small>
+    }
+}
+
+<div class="mt-2"></div>
+
+@* Whole-email-related validation *@
+@Html.ValidationMessageFor(model => model, "", new {@class = "invalid-feedback"})
+
+@* Subject *@
+@Html.EditorFor(model => model.Subject, fieldsInfo)
+<div class="mb-3"></div>
+
+@* Body - note that we want only a simple textarea (+ CKEditor), not the full bootstrap layout *@
+@using (Html.UseFormConfig(new SimpleForm()))
+{
+    @Html.EditorFor(model => model.Body, fieldsInfo)
+}
+
+<div class="mb-3"></div>
