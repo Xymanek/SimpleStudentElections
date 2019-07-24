@@ -1,4 +1,4 @@
-Election system for students designed with simplicity in mind. Integrates with an existing timetable system. Note that the orignal recipient of this project has been annonymised
+Election system for students designed with simplicity in mind. Integrates with an existing timetable system. Note that the original recipient of this project has been annonymised
 
 Built with (backend):
 
