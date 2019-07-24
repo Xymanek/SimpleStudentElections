@@ -1,0 +1,25 @@
+﻿@using SimpleStudentElections.Helpers
+@using SimpleStudentElections.Models
+@model SimpleStudentElections.Models.Forms.ElectionForm
+
+@{
+    Election election = ViewBag.Election;
+
+    ViewBag.Title = election.Name + " | Edit"; // Use non-edited name until changes are validated and saved
+
+    Html.IncludeCkeditor();
+}
+
+<h2>Edit "@election.Name"</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.EditorForModel()
+
+    <div class="form-group row">
+        <div class="offset-md-2 col-md-10">
+            <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+    </div>
+}

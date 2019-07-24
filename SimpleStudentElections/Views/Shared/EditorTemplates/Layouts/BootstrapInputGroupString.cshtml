@@ -1,0 +1,23 @@
+@using SimpleStudentElections.Helpers
+@model string
+
+<div class="input-group mb-3 mt-2">
+    @RenderSection("BeforeInput", required: false)
+    
+    @{
+        HtmlAttributeDictionary inputAttrs = new HtmlAttributeDictionary(Html.GetDictionaryFromViewBagValue(
+            (object) ViewBag.InputAttributes,
+            () => new Dictionary<string, object>() // Cannot return null so we replace it with empty dictionary
+        ));
+
+        inputAttrs.AddClass("form-control");
+        inputAttrs.AddClass(Html.StringIfFieldError(model => model));
+        Html.AddDisabledConditionally(inputAttrs);
+        
+        @Html.TextBoxFor(model => model, inputAttrs)
+    }
+
+    @RenderSection("AfterInput", required: false)
+</div>
+
+@Html.ValidationMessageFor(model => model, "", new {@class = "invalid-feedback"})

@@ -1,0 +1,67 @@
+﻿@using SimpleStudentElections.Auth
+@using StackExchange.Profiling
+@{
+    string menuActive = ViewBag.HeaderMenuActive;
+}
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>@ViewData["Title"]</title>
+
+    <link rel="stylesheet" href="~/Content/bootstrap.css"/>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
+    <link rel="stylesheet" href="~/Content/student.css"/>
+</head>
+<body>
+
+<header>
+    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+        <div class="container">
+            <span class="navbar-brand">CY Elections</span>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item @(menuActive == "ElectionsList" ? "active" : "")">
+                        <a class="nav-link" href="@Url.Action("Index", "Student")">Elections list</a>
+                    </li>
+                </ul>
+
+                @* Auth things *@
+                <div>
+                    <span style="color: white; margin-right: 5px">@User.Identity.Name</span>
+
+                    @if (AppAuthConfiguration.Get().DebugMode)
+                    {
+                        <a class="btn btn-danger" href="@Url.Action("Logout", "Auth")">Logout</a>
+                    }
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<div class="container" id="outer-wrap">
+    @RenderBody()
+</div>
+
+<footer id="bottom-sticky-footer">
+    <div class="container">
+        <span class="text-muted">&copy; 2019 - SimpleStudentElections</span>
+    </div>
+</footer>
+
+<script src="~/Scripts/jquery-3.3.1.js"></script>
+<script src="~/Scripts/umd/popper.js"></script>
+<script src="~/Scripts/bootstrap.js"></script>
+
+@RenderSection("scripts", required: false)
+@MiniProfiler.Current.RenderIncludes()
+</body>
+</html>

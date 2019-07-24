@@ -1,0 +1,22 @@
+﻿@using SimpleStudentElections.Models
+@model ICollection<SimpleStudentElections.Models.Election>
+
+@{
+    ViewBag.Title = "Archived elections";
+    ViewBag.HeaderMenuActive = "Archived";
+}
+
+<h2>Archived elections</h2>
+
+<ul>
+    @foreach (Election election in Model)
+    {
+        <li>
+            <a href="@Url.Action("Details", new {id = election.Id})">@election.Name</a>
+            @if (election.State == ElectionState.Aborted)
+            {
+                <text>(aborted)</text>
+            }
+        </li>
+    }
+</ul>

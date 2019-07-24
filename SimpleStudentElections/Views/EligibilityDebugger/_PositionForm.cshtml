@@ -1,0 +1,103 @@
+@using SimpleStudentElections.Models
+@model SimpleStudentElections.Models.Election
+
+@{
+    bool isNew = (bool) ViewBag.IsNew;
+    string defaultChecked = isNew ? "checked" : "";
+}
+
+<form>
+    @* Election information *@
+    <div class="form-group row">
+        <label class="col-sm-4 col-form-label">Election</label>
+        <div class="col-sm-8">
+            <input type="text" readonly class="form-control-plaintext" value="@Model.Name">
+        </div>
+    </div>
+    
+    @* Student and position *@
+    <div class="form-group row">
+        <label class="col-sm-4 col-form-label">Position</label>
+        <div class="col-sm-8">
+            @if (isNew)
+            {
+                <select class="form-control disable-during-request position-select">
+                    @foreach (VotablePosition position in Model.PositionsSorted)
+                    {
+                        <option value="@position.Id">@position.HumanName</option>
+                    }
+                </select>
+            }
+            else
+            {
+                <input type="text" readonly class="form-control position-name-input">
+            }
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-4 col-form-label">
+            @if (isNew)
+            {
+                <text>Student ID</text>
+            }
+            else
+            {
+                <text>Student</text>
+            }
+        </label>
+        <div class="col-sm-8">
+            @if (isNew)
+            {
+                <input type="text" class="form-control student-id-input disable-during-request">
+            }
+            else
+            {
+                <input type="text" readonly class="form-control student-name-input">
+            }
+        </div>
+    </div>
+
+    @* Toggles *@
+    <fieldset class="form-group position-can-nominate">
+        <div class="row">
+            <legend class="col-form-label col-sm-4 pt-0">Can nominate?</legend>
+            <div class="col-sm-8">
+                <div class="form-check form-check-inline">
+                    <label class="form-check-label">
+                        <input class="form-check-input disable-during-request mr-0 can-nominate-yes"
+                               type="radio" name="position-can-nominate" @defaultChecked>
+                        Yes
+                    </label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <label class="form-check-label">
+                        <input class="form-check-input disable-during-request mr-0 can-nominate-no"
+                               type="radio" name="position-can-nominate">
+                        No
+                    </label>
+                </div>
+            </div>
+        </div>
+    </fieldset>
+    <fieldset class="form-group position-can-vote">
+        <div class="row">
+            <legend class="col-form-label col-sm-4 pt-0">Can vote?</legend>
+            <div class="col-sm-8">
+                <div class="form-check form-check-inline">
+                    <label class="form-check-label">
+                        <input class="form-check-input disable-during-request mr-0 can-vote-yes"
+                               type="radio" name="position-can-vote" @defaultChecked>
+                        Yes
+                    </label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <label class="form-check-label">
+                        <input class="form-check-input disable-during-request mr-0 can-vote-no"
+                               type="radio" name="position-can-vote">
+                        No
+                    </label>
+                </div>
+            </div>
+        </div>
+    </fieldset>
+</form>

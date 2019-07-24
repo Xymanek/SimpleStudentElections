@@ -1,0 +1,11 @@
+﻿@model string
+
+@{
+    Html.RenderPartial("EditorTemplates/MultilineText");
+}
+
+<script>
+    $(function() {
+        CKEDITOR.replace("@Html.IdForModel()");
+    });
+</script>

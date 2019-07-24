@@ -1,0 +1,143 @@
+﻿@using System.Diagnostics
+@using SimpleStudentElections.Helpers
+@using SimpleStudentElections.Models.Forms
+@model SimpleStudentElections.Models.Forms.ElectionPhaseForm
+
+@{
+    ModelFieldsAccessibility fieldsInfo =
+        Html.GetFieldsInfo(() => ElectionPhaseForm.DefaultFieldsInfo(ModelFieldsAccessibility.Kind.Editable));
+    
+    // For sake of not having to mess with JS we just prohibit having those fields hidden
+    Debug.Assert(fieldsInfo.IsVisible(Html.PropertyName(m => m.BeginsAt)));
+    Debug.Assert(fieldsInfo.IsVisible(Html.PropertyName(m => m.EndsAt)));
+}
+
+@Html.EditorFor(model => model.BeginsAt, fieldsInfo)
+@Html.EditorFor(model => model.EndsAt, fieldsInfo)
+@Html.EditorFor(model => model.AlmostOverEmailAt, fieldsInfo, new
+{
+    help = "When the system will check and send the \"Almost over\" emails"
+})
+@Html.EditorFor(model => model.AlarmEnabled, fieldsInfo)
+@Html.EditorFor(model => model.AlarmCheckAt, fieldsInfo)
+@Html.EditorFor(model => model.AlarmThreshold, fieldsInfo, new
+{
+    help = "The alarm will be triggered if the calculated value is equal or below this value"
+})
+
+@{
+    string beginsAtId = Html.DatePickerInputGroupId(model => model.BeginsAt);
+    string checkAtId = Html.DatePickerInputGroupId(model => model.AlarmCheckAt);
+    string endsAtId = Html.DatePickerInputGroupId(model => model.EndsAt);
+    string almostOverAtId = Html.DatePickerInputGroupId(model => model.AlmostOverEmailAt);
+}
+
+@* 
+    Note for JS below - cannot use it to set "in future only" restriction as it will silently change
+    existing values when opening edit page with non-compliant values
+ *@
+<script>
+    $(function() {
+        var beginsAt = $("#@beginsAtId");
+        var checkAt = $("#@checkAtId");
+        var almostOverAt = $("#@almostOverAtId");
+        var endAt = $("#@endsAtId");
+
+        function updateBeginsAt() {
+            @if (fieldsInfo.CanBeChangedByUser(Html.PropertyName(m => m.BeginsAt)))
+            {
+                <text>
+                    var end = endAt.datetimepicker('date');
+
+                    if (end == null) {
+                        // Something is wrong, just allow anything
+                        beginsAt.datetimepicker('maxDate', false);
+                        return;
+                    }
+
+                    beginsAt.datetimepicker('maxDate', end);
+                </text>
+            }
+        }
+
+        function updateAlmostOverAt() {
+            @if (fieldsInfo.CanBeChangedByUser(Html.PropertyName(m => m.AlmostOverEmailAt)))
+            {
+                <text>
+                    // Reset first - otherwise complains about order of operations
+                    almostOverAt.datetimepicker('minDate', false);
+                    almostOverAt.datetimepicker('maxDate', false);
+
+                    var start = beginsAt.datetimepicker('date');
+                    var end = endAt.datetimepicker('date');
+
+                    if (start == null || end == null || end.isBefore(start)) {
+                        // Something is wrong, just allow anything
+                        almostOverAt.datetimepicker('maxDate', false);
+                        return;
+                    }
+
+                    almostOverAt.datetimepicker('minDate', start);
+                    almostOverAt.datetimepicker('maxDate', end);
+                </text>
+            }
+        }
+
+        function updateCheckAt() {
+            @if (fieldsInfo.CanBeChangedByUser(Html.PropertyName(m => m.AlarmCheckAt)))
+            {
+                <text>
+                    // Reset first - otherwise complains about order of operations
+                    checkAt.datetimepicker('minDate', false);
+                    checkAt.datetimepicker('maxDate', false);
+
+                    var start = beginsAt.datetimepicker('date');
+                    var end = endAt.datetimepicker('date');
+
+                    if (start == null || end == null || end.isBefore(start)) {
+                        // Something is wrong, just allow anything
+                        checkAt.datetimepicker('maxDate', false);
+                        return;
+                    }
+
+                    checkAt.datetimepicker('minDate', start);
+                    checkAt.datetimepicker('maxDate', end);
+                </text>
+            }
+        }
+
+        function updateEndsAt() {
+            @if (fieldsInfo.CanBeChangedByUser(Html.PropertyName(m => m.EndsAt)))
+            {
+                <text>
+                    var start = beginsAt.datetimepicker('date');
+
+                    if (start == null) {
+                        // Something is wrong, just allow anything
+                        endAt.datetimepicker('minDate', false);
+                        return;
+                    }
+
+                    endAt.datetimepicker('minDate', start);
+                </text>
+            }
+        }
+
+        beginsAt.on("change.datetimepicker", function() {
+            updateCheckAt();
+            updateAlmostOverAt();
+            updateEndsAt();
+        });
+        endAt.on("change.datetimepicker", function() {
+            updateBeginsAt();
+            updateCheckAt();
+            updateAlmostOverAt();
+        });
+        
+        // Initial values
+        updateBeginsAt();
+        updateCheckAt();
+        updateAlmostOverAt();
+        updateEndsAt();
+    });
+</script>

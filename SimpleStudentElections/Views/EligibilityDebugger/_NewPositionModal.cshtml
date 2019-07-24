@@ -1,0 +1,29 @@
+@using SimpleStudentElections.Helpers
+@model SimpleStudentElections.Models.Election
+
+<div class="modal fade" id="new-position-entry" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">New position entry</h5>
+                <button type="button" class="close disable-during-request" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="error-container"></div>
+                @{
+                    Html.RenderPartial("_PositionForm", Model, new {IsNew = true});
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary disable-during-request" data-dismiss="modal">
+                    Discard and close form
+                </button>
+                <button type="button" class="btn btn-success confirm-button disable-during-request">
+                    Create
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

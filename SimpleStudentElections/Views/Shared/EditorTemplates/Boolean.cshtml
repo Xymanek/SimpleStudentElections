@@ -1,0 +1,36 @@
+﻿@using SimpleStudentElections.Helpers
+@model bool
+
+@{
+    BootstrapHorizontalForm horizontalForm = ViewData[FormConfig.ViewDataKey] as BootstrapHorizontalForm;
+}
+
+@if (horizontalForm == null)
+{
+    @Html.CheckBoxFor(m => m, Html.GetDictionaryFromViewBagValue((object) ViewBag.htmlAttributes))
+}
+else
+{
+    Layout = "Layouts/BootstrapHorizontal.cshtml";
+    string help = ViewBag.help;
+
+    // Do not show layout help
+    ViewBag.help = null;
+    
+    HtmlAttributeDictionary inputAttrs = new HtmlAttributeDictionary(Html.GetDictionaryFromViewBagValue(
+        (object) ViewBag.inputAttributes,
+        () => new Dictionary<string, object>() // Cannot return null so we replace it with empty dictionary
+    ));
+    
+    inputAttrs.AddClass("form-check-input");
+    inputAttrs.AddClass(Html.StringIfFieldError(model => model));    
+    Html.AddDisabledConditionally(inputAttrs);
+
+    <div class="form-check">
+        @Html.CheckBoxFor(model => model, inputAttrs)
+        @if (!string.IsNullOrWhiteSpace(help))
+        {
+            <span class="text-muted">@help</span>
+        }
+    </div>
+}

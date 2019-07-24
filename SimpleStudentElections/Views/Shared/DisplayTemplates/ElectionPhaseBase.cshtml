@@ -1,0 +1,47 @@
+﻿@model SimpleStudentElections.Models.ElectionPhaseBase
+
+<table class="table table-bordered table-sm">
+    <thead>
+    <tr>
+        <th colspan="2">@ViewBag.PhaseTitle</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <th scope="row">@Html.DisplayNameFor(m => m.BeginsAt)</th>
+        <td>@Html.DisplayFor(m => m.BeginsAt)</td>
+    </tr>
+    <tr>
+        <th scope="row">@Html.DisplayNameFor(m => m.EndsAt)</th>
+        <td>@Html.DisplayFor(m => m.EndsAt)</td>
+    </tr>
+    
+    @if (ViewBag.ShowAlmostOver == true)
+    {
+        <tr>
+            <th scope="row">@Html.DisplayNameFor(m => m.AlmostOverEmailAt)</th>
+            <td>@Html.DisplayFor(m => m.AlmostOverEmailAt)</td>
+        </tr>
+    }
+
+    @if (Model.AlarmEnabled)
+    {
+        <tr>
+            <th scope="row">@Html.DisplayNameFor(m => m.AlarmCheckAt)</th>
+            <td>@Html.DisplayFor(m => m.AlarmCheckAt)</td>
+        </tr>
+        <tr>
+            <th scope="row">@Html.DisplayNameFor(m => m.AlarmThreshold)</th>
+            <td>@Html.DisplayFor(m => m.AlarmThreshold)%</td>
+        </tr>
+    }
+    else
+    {
+        <tr>
+            <th scope="row">Alarm</th>
+            <td>Disabled</td>
+        </tr>
+    }
+
+    </tbody>
+</table>

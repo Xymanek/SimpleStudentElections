@@ -1,0 +1,50 @@
+﻿@using SimpleStudentElections.Helpers
+@model DateTime
+
+@{
+    BootstrapHorizontalForm horizontalForm = ViewData[FormConfig.ViewDataKey] as BootstrapHorizontalForm;
+}
+
+@if (horizontalForm == null)
+{
+    @Html.TextBoxFor(m => m, Html.GetDictionaryFromViewBagValue((object) ViewBag.htmlAttributes))
+}
+else
+{
+    Layout = "Layouts/BootstrapHorizontal.cshtml";
+    ViewBag.ShowValidation = false;
+    
+    HtmlAttributeDictionary inputAttrs = new HtmlAttributeDictionary(Html.GetDictionaryFromViewBagValue(
+        (object) ViewBag.inputAttributes,
+        () => new Dictionary<string, object>() // Cannot return null so we replace it with empty dictionary
+    ));
+
+    string divId = Html.DatePickerInputGroupId(model => model);
+
+    inputAttrs["data-target"] = "#" + divId;
+    inputAttrs.AddClass("form-control");
+    inputAttrs.AddClass("datetimepicker-input");
+    inputAttrs.AddClass(Html.StringIfFieldError(model => model));    
+    Html.AddDisabledConditionally(inputAttrs);
+    
+    <div class="input-group" id="@divId" data-target-input="nearest">
+        @Html.TextBoxFor(model => model, ViewData.ModelMetadata.EditFormatString, inputAttrs)
+        
+        <div class="input-group-append" data-target="#@divId" data-toggle="datetimepicker">
+            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+        </div>
+        
+        @Html.ValidationMessageFor(model => model, "", new {@class = "invalid-feedback"})
+    </div>
+    
+    <script type="text/javascript">
+        $(function () {
+            $('#@divId').datetimepicker({
+                sideBySide: true,
+                format: "@FormConstants.DefaultDateTimeFormatMomentJs",
+                useStrict: true,
+                date: moment("@string.Format(FormConstants.DefaultDateTimeFormat, Model)", "@FormConstants.DefaultDateTimeFormatMomentJs"),
+            });
+        });
+    </script>
+}

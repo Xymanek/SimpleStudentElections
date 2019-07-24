@@ -1,0 +1,35 @@
+﻿@using SimpleStudentElections.Helpers
+@{
+    BootstrapHorizontalForm horizontalForm = (BootstrapHorizontalForm) ViewData[FormConfig.ViewDataKey];
+    string help = ViewBag.help;
+    
+    HtmlAttributeDictionary labelAttrs = new HtmlAttributeDictionary(Html.GetDictionaryFromViewBagValue(
+        (object) ViewBag.labelAttributes,
+        () => new Dictionary<string, object>() // Cannot return null so we replace it with empty dictionary
+        ));
+
+    labelAttrs.AddClass("col-form-label");
+}
+
+<div class="form-group row">
+    <div class="@string.Join(" ", horizontalForm.LabelWidth.Select(Html.BootstrapColumnToClass))">
+        @Html.LabelForModel(labelAttrs)
+        @RenderSection("UnderLabel", required: false)
+    </div>
+
+    <div class="@string.Join(" ", horizontalForm.InputContainerWidth.Select(Html.BootstrapColumnToClass))">
+        @RenderBody()
+        
+        @if (ViewBag.ShowValidation ?? true)
+        {
+            @Html.ValidationMessageFor(model => model, "", new {@class = "invalid-feedback"})
+        }
+        
+        @if (!string.IsNullOrWhiteSpace(help))
+        {
+            <small class="form-text text-muted">
+                @help
+            </small>
+        }
+    </div>
+</div>

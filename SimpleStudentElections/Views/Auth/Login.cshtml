@@ -1,0 +1,94 @@
+﻿@using StackExchange.Profiling
+@model SimpleStudentElections.Models.Forms.LoginForm
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Debug login</title>
+
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="~/Content/bootstrap.css"/>
+
+    <!-- Custom styles for this template -->
+    <style>
+        html,
+        body { height: 100%; }
+
+        body {
+            display: -ms-flexbox;
+            display: flex;
+            -ms-flex-align: center;
+            align-items: center;
+            padding-top: 40px;
+            padding-bottom: 40px;
+            background-color: #f5f5f5;
+        }
+
+        .form-signin {
+            width: 100%;
+            max-width: 330px;
+            padding: 15px;
+            margin: auto;
+        }
+
+        .form-signin .checkbox { font-weight: 400; }
+
+        .form-signin .form-control {
+            position: relative;
+            box-sizing: border-box;
+            height: auto;
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        .form-signin .form-control:focus { z-index: 2; }
+
+        .stacked-inputs input {
+            border-radius: 0;
+        }
+        
+        .stacked-inputs input:first-child {
+            border-bottom-right-radius: 4px;
+            border-bottom-left-radius: 4px;
+        }
+
+        .stacked-inputs input:last-child {
+            border-top-left-radius: 4px;
+            border-top-right-radius: 4px;
+        }
+    </style>
+</head>
+
+<body class="text-center">
+
+    <form class="form-signin" method="post">
+        <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
+
+        <div>
+            @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+        </div>
+
+        <div class="stacked-inputs">
+            @Html.EditorFor(m => m.Username, new
+            {
+                htmlAttributes = new
+                {
+                    @class = "form-control",
+                    placeholder = Html.DisplayNameFor(m => m.Username)
+                }
+            })
+        </div>
+
+        @Html.AntiForgeryToken()
+        <button class="btn btn-lg btn-primary btn-block mt-3" type="submit">Sign in</button>
+    </form>
+
+    @MiniProfiler.Current.RenderIncludes()
+
+</body>
+</html>

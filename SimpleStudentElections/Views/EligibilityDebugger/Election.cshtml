@@ -1,0 +1,154 @@
+@using SimpleStudentElections.Helpers
+@model SimpleStudentElections.Models.Election
+
+@{
+    ViewBag.Title = Model.Name + "| Election eligibility";
+
+    Html.IncludeDataTables();
+}
+
+<div class="d-flex justify-content-between">
+    <h2>@Model.Name | Election eligibility</h2>
+    <div>
+        <a href="@Url.Action("Positions", new {electionId = Model.Id})" class="btn btn-primary">
+            Positions eligibility
+        </a>
+        <a href="@Url.Action("Details", "AdminElections", new {id = Model.Id})" class="btn btn-secondary">
+            Back to election details
+        </a>
+    </div>
+</div>
+
+@{
+    Html.RenderPartial("_AutomaticEligibilityNote", Model);
+}
+
+<table id="election-eligibility-table" class="table table-striped table-bordered"></table>
+
+@section BeforeScripts
+{
+    @{
+        Html.RenderPartial("_DeletionModal");
+        Html.RenderPartial("_NewElectionEntryModal");
+    }
+}
+
+@section scripts
+{
+    <script src="~/Scripts/admin/modal_helpers.js"></script>
+    <script src="~/Scripts/admin/entries_deletion.js"></script>
+    <script src="~/Scripts/admin/election_entries.js"></script>
+    
+    <script>
+        $(function() {
+            const $table = $('#election-eligibility-table');
+            
+            const deletionModal = new DeletionModal(
+                $('#entries-deletion-confirmation'),
+                'You are about to delete the following election eligibility entries. ' +
+                'Doing so will make this election non-accessible (invisible) to the mentioned students',
+                '@Url.Action("RemoveElectionEntries", new { electionId = Model.Id })',
+                function() {
+                    // On success just remove the selected rows
+                    $table.DataTable()
+                        .rows({ selected: true })
+                        .remove()
+                        .draw();
+                }
+            );
+            
+            const creationModal = new NewElectionEntryModal($('#new-election-entry'), @Model.Id, $table, '@Url.Action("NewElectionEntry")');
+            
+            $table.DataTable({
+                // Buttons
+                buttons: [
+                    {
+                        text: 'Create new entry',
+                        init: function(dt, node, config) {
+                            // Change button colour
+                            node.removeClass('btn-secondary').addClass('btn-success');
+                        },
+                        action: function(e, dt, node, config) {
+                            creationModal.open();
+                        }
+                    },
+                    {
+                        extend: 'excel',
+                        text: 'Export to Excel',
+                        exportOptions: {
+                            columns: function(idx, data, node) {
+                                return idx !== 0;
+                            }
+                        }
+                    },
+                    {
+                        extend: 'selected',
+                        text: 'Delete selected',
+                        titleAttr: 'Delete all selected entries',
+                        init: function(dt, node, config) {
+                            // Call the parent init
+                            $.fn.dataTable.ext.buttons.selected.init.call(this, dt, node, config);
+
+                            // Change button colour
+                            node.removeClass('btn-secondary').addClass('btn-danger');
+                        },
+                        action: function(e, dt, node, config) {
+                            const entries = dt.rows({ selected: true })
+                                .data()
+                                .toArray()
+                                .map(row => new ElectionEntry(
+                                    row.UserFullName,
+                                    row.UserId
+                                ));
+
+                            deletionModal.askForConfirmation(entries);
+                        }
+                    }
+                ],
+                
+                // Select
+                select: {
+                    style: 'multi+shift',
+                    selector: 'td:first-child'
+                },
+
+                // Layout
+                dom: "<'row'<'col-sm-12 col-md-6'B><'col-sm-12 col-md-6'f>>" +
+                    "<'row'<'col-sm-12'tr>>" +
+                    "<'d-flex justify-content-between under-datatable'<i><l><p>>",
+                
+                // Data
+                ajax: "@Url.Action("ElectionData")",
+                order: [[1, 'asc']],
+                columns: [
+                    {
+                        orderable: false,
+                        className: 'select-checkbox',
+                        data: null,
+                        "defaultContent": ""
+                    },
+                    {
+                        title: "Student ID",
+                        data: "UserId"
+                    },
+                    {
+                        title: "Full name",
+                        data: "UserFullName",
+                        render: function(data, type, row) {
+                            if (data == null) {
+                                return '<span class="text-muted">User not found in timetable database</span>';
+                            }
+
+                            return data;
+                        }
+                    }
+                ]
+            });
+            
+            const $underDatatable = $('.under-datatable');
+
+            $underDatatable.find('.dataTables_info').addClass('pt-2');
+            $underDatatable.find('.dataTables_length').addClass('pt-2');
+        });
+    </script>
+}

@@ -1,0 +1,50 @@
+﻿@model SimpleStudentElections.Models.Election
+
+@{
+    ViewBag.Title = Model.Name + " | Publishing results";
+
+    bool canConfirm = ViewBag.CanConfirm;
+}
+
+<h2>@Model.Name</h2>
+
+<div class="alert alert-success">
+    <h4 class="alert-heading">You are about to publish results for this election</h4>
+    <p>
+        This action will put the election into <strong>ResultsPublished</strong> state.
+        This means:
+        <ul>
+            <li>Students who are able to see this election will be able to see the results you entered</li>
+            @if (Model.ResultsPublishedEmail != null)
+            {
+                <li>Students who are able to see this election will recieve an email</li>
+            }
+            <li>This election will be archived</li>
+            <li>You will no longer be able to edit this election</li>
+        </ul>
+    </p>
+    <hr/>
+    <ul>
+        <li>You can only preform this action if the "Results" field has been filled in</li>
+        <li><strong>This is an irreversible action</strong>. If you confirm, the elction will be "frozen" forever</li>
+    </ul>
+</div>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div>
+        <a href="@Url.Action("Details", new {id = Model.Id})" class="btn btn-dark">Cancel</a>
+        
+        @if (canConfirm)
+        {
+            <button type="submit" class="btn btn-primary">Confirm</button>
+        }
+        else
+        {
+            <button type="submit" class="btn btn-primary" disabled="disabled">Confirm</button>
+        }
+        
+    </div>
+}

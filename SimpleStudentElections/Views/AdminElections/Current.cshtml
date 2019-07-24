@@ -1,0 +1,76 @@
+﻿@using SimpleStudentElections.Logic
+@model IList<SimpleStudentElections.Models.Election>
+
+@{
+    ViewBag.Title = "Current elections";
+    ViewBag.HeaderMenuActive = "Current";
+
+    int numElections = Model.Count;
+    int lastElection = numElections - 1;
+}
+
+<h2>Current elections</h2>
+
+@if (numElections > 0)
+{
+    for (int i = 0; i < numElections; i++)
+    {
+        <div>
+            <div class="d-flex justify-content-between">
+                <h4>@Html.DisplayFor(m => m[i].Name)</h4>
+
+                <div>
+                    <a href="@Url.Action("Details", new {id = Model[i].Id})" class="btn btn-primary">Details and management</a>
+                </div>
+            </div>
+
+            <div class="row" style="margin-top: 10px">
+                <div class="col">
+                    @{
+                        Html.RenderPartial("_ElectionGeneralInfo", Model[i]);
+                    }
+                </div>
+
+                <div class="col">
+                    @Html.DisplayFor(m => m[i].Nominations, new
+                    {
+                        PhaseTitle = "Nominations phase",
+                        ShowAlmostOver = ElectionLifecycleInfo.AreAlmostOverEmailsEnabled(Model[i])
+                    })
+                </div>
+
+                <div class="col">
+                    @Html.DisplayFor(m => m[i].Voting,new
+                    {
+                        PhaseTitle = "Voting phase",
+                        ShowAlmostOver = ElectionLifecycleInfo.AreAlmostOverEmailsEnabled(Model[i])
+                    })
+                </div>
+            </div>
+
+            <div>
+                <table class="table table-bordered table-sm">
+                    <thead>
+                    <tr>
+                        <th>Description</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>@Html.Raw(Model[i].Description)</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        if (i != lastElection)
+        {
+            <hr/>
+        }
+    }
+}
+else
+{
+    <div>There are currently no elections</div>
+}

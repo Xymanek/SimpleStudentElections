@@ -1,0 +1,66 @@
+﻿@using SimpleStudentElections.Helpers
+@using SimpleStudentElections.Models.Forms
+@model SimpleStudentElections.Models.Forms.CouncilElectionForm
+
+@{
+    ModelFieldsAccessibility fieldsInfo =
+        Html.GetFieldsInfo(() => CouncilElectionForm.DefaultCouncilFieldsInfo(ModelFieldsAccessibility.Kind.Editable));
+}
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="text-danger">There were errors (see individual fields for details). Please correct them</div>
+}
+
+@Html.ValidationSummary(true, "", new {@class = "text-danger"})
+
+@using (Html.UseFormConfig(new BootstrapHorizontalForm()
+{
+    LabelWidth = {{BootstrapColType.Md, 2}},
+    InputContainerWidth = {{BootstrapColType.Md, 10}},
+}))
+{
+    @Html.EditorFor(model => model.Name, fieldsInfo, new
+    {
+        inputAttributes = new {placeholder = "2018-19 Student council election"}
+    })
+
+    @Html.EditorFor(model => model.Description, fieldsInfo)
+    @Html.EditorFor(model => model.DisableAutomaticEligibility, fieldsInfo, new
+    {
+        help = "Intended for test elections. USE WITH CARE!"
+    })
+    @Html.EditorFor(model => model.ResultsText, fieldsInfo)
+    @Html.EditorFor(model => model.Roles, fieldsInfo)
+
+    if (fieldsInfo.IsVisible(Html.PropertyName(m => m.Nominations)))
+    {
+        <h4>Nominations phase</h4>
+        @Html.EditorFor(model => model.Nominations, fieldsInfo)
+    }
+    
+    if (fieldsInfo.IsVisible(Html.PropertyName(m => m.Voting)))
+    {
+        <h4>Voting phase</h4>
+        @Html.EditorFor(model => model.Voting, fieldsInfo)    
+    }
+
+    <div>
+        <h4 class="d-inline">Emails</h4>
+        <span class="text-muted">Note that leaving subject <strong>or</strong> body completely empty will disable that email</span>
+    </div>
+
+    @Html.EditorFor(model => model.NominationsStartedEmail, fieldsInfo)
+    @Html.EditorFor(model => model.NominationsAlmostOverEmail, fieldsInfo, new
+    {
+        help = "This email will be sent only to those who still haven't nominated themselves"
+    })
+    @Html.EditorFor(model => model.PostNominationsEmail, fieldsInfo)
+    @Html.EditorFor(model => model.VotingStartedEmail, fieldsInfo)
+    @Html.EditorFor(model => model.VotingAlmostOverEmail, fieldsInfo, new
+    {
+        help = "This email will be sent only to those who still have an ability to cast a vote"
+    })
+    @Html.EditorFor(model => model.PostVotingEmail, fieldsInfo)
+    @Html.EditorFor(model => model.ResultsPublishedEmail, fieldsInfo)
+}
